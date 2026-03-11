@@ -187,3 +187,23 @@ export function run_binloader () {
     throw e
   }
 }
+
+if (typeof CONFIG !== 'undefined' && CONFIG.run_vulnerability_tester && is_jailbroken) {
+  log('Auto-starting vulnerability tester...')
+  
+  // Warte kurz, damit der Jailbreak sich stabilisieren kann
+  setTimeout(() => {
+    // Dynamischer Import mit korrektem Pfad (wie die anderen Imports)
+    import('./vulnerability_tester.js').then(module => {
+      module.run_vulnerability_tester()
+    }).catch(err => {
+      log('Failed to load vulnerability tester: ' + err.message)
+      // Fallback falls dynamischer Import nicht funktioniert
+      try {
+        include('vulnerability_tester.js')
+      } catch (e) {
+        log('Fallback include also failed: ' + (e as Error).message)
+      }
+    })
+  }, 1000) // 1 Sekunde warten
+}
